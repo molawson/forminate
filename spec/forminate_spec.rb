@@ -73,6 +73,7 @@ describe Forminate do
       expected_attributes = [
         "total",
         "tax",
+        "dummy_user_id",
         "dummy_user_first_name",
         "dummy_user_last_name",
         "dummy_user_email",
@@ -111,7 +112,11 @@ describe Forminate do
     end
 
     it "sets association attributes based on an options hash" do
-      new_model = model_class.new(dummy_user_first_name: 'Mo', dummy_user_last_name: 'Lawson')
+      new_model = model_class.new(
+        dummy_user_first_name: 'Mo',
+        dummy_user_last_name: 'Lawson',
+        dummy_book_title: 'The Hobbit'
+      )
       expect(new_model.dummy_user_first_name).to eq('Mo')
       expect(new_model.dummy_user_last_name).to eq('Lawson')
     end

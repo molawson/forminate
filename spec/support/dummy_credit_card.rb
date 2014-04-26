@@ -1,5 +1,3 @@
-require 'active_attr'
-
 class DummyCreditCard
   include ActiveAttr::Model
 

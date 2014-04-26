@@ -1,5 +1,3 @@
-require 'active_attr'
-
 class DummyBook
   include ActiveAttr::Model
 
