@@ -4,6 +4,7 @@ require 'active_support/concern'
 require 'active_attr'
 
 require 'forminate/association_definition'
+require 'forminate/association_builder'
 
 module Forminate
   extend ActiveSupport::Concern
@@ -120,35 +121,8 @@ module Forminate
 
   def build_associations(attributes)
     association_names.each do |association_name|
-      association = build_association(association_name, attributes)
+      association = AssociationBuilder.new(association_name, attributes).build
       instance_variable_set("@#{association_name}".to_sym, association)
-    end
-  end
-
-  def build_association(name, attributes)
-    association_attributes = attributes_for_association(name, attributes)
-    klass = name.to_s.classify.constantize
-
-    if klass.respond_to? :primary_key
-      primary_key = attributes["#{name}_#{klass.primary_key}".to_sym]
-    end
-
-    if primary_key
-      object = klass.find primary_key
-      object.assign_attributes association_attributes
-      object
-    else
-      klass.new association_attributes
-    end
-  end
-
-  def attributes_for_association(association_name, attributes)
-    prefix = "#{association_name}_"
-    relevant_attributes = attributes.select { |k, v| k =~ /#{prefix}/ }
-    relevant_attributes.reduce({}) do |hash, (name, definition)|
-      new_key = name.to_s.sub(prefix, '').to_sym
-      hash[new_key] = definition
-      hash
     end
   end
 
