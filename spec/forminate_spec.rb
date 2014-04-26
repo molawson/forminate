@@ -49,21 +49,38 @@ describe Forminate do
     end
 
     describe ":validate option" do
-      it "validates associated object based on true or false" do
-        model.calculate_total
-        expect(model.valid?).to be_false
-        model.dummy_user_email = 'bob@example.com'
-        expect(model.valid?).to be_true
+      context "true or false" do
+        it "validates associated object based value given" do
+          model.calculate_total
+          expect(model.valid?).to be_false
+          model.dummy_user_email = 'bob@example.com'
+          expect(model.valid?).to be_true
+        end
       end
 
-      it "validates associated objects based on a method name (as a symbol) that evaluates to true or false" do
-        model.calculate_total
-        model.dummy_user_email = 'bob@example.com'
-        expect(model.valid?).to be_true
-        model.dummy_book_price = 12.95
-        expect(model.valid?).to be_false
-        model.dummy_credit_card_number = 4242424242424242
-        expect(model.valid?).to be_true
+      context "method name (as a symbol) that evaluates to true or false" do
+        it "validates associated objects based on result of method call" do
+          model.calculate_total
+          model.dummy_user_email = 'bob@example.com'
+          expect(model.valid?).to be_true
+          model.dummy_book_price = 12.95
+          expect(model.valid?).to be_false
+          model.dummy_credit_card_number = 4242424242424242
+          expect(model.valid?).to be_true
+        end
+      end
+
+      context "invalid value" do
+        let(:bad_model_class) do
+          Class.new do
+            include Forminate
+            attributes_for :dummy_book, :validate => [:what, :are, :you, :thinking?]
+          end
+        end
+
+        it "raises an NotImplemented error" do
+          expect { bad_model_class.new.valid? }.to raise_error(NotImplementedError)
+        end
       end
     end
   end
@@ -121,6 +138,18 @@ describe Forminate do
       expect(new_model.dummy_user_last_name).to eq('Lawson')
     end
 
+    context "primary key of an associated AR model is present" do
+      it "populates the matching model with values from the database" do
+        user = DummyUser.create(
+          first_name: 'Mo',
+          last_name: 'Lawson',
+          email: 'mo@example.com'
+        )
+        new_model = model_class.new(dummy_user_id: user.id)
+        expect(new_model.dummy_user_first_name).to eq('Mo')
+      end
+    end
+
     it "sets attributes based on an options hash" do
       new_model = model_class.new(total: 21.49)
       expect(new_model.total).to eq(21.49)
@@ -171,6 +200,35 @@ describe Forminate do
     end
   end
 
+  describe "#method_missing" do
+    context "associated object responds to method" do
+      it "returns the value from the association" do
+        new_model = model_class.new(dummy_user_first_name: 'Mo')
+        expect(new_model.dummy_user_first_name).to eq('Mo')
+      end
+    end
+
+    context "associated object does not respond to method" do
+      it "raises a NoMethodError" do
+        expect { model.dummy_user_bogus_method }.to raise_error(NoMethodError)
+      end
+    end
+  end
+
+  describe "#respond_to_missing?" do
+    context "associated object responds to method" do
+      it "returns true" do
+        expect(model.respond_to?(:dummy_user_first_name)).to be_true
+      end
+    end
+
+    context "associated object does not respond to method" do
+      it "returns false" do
+        expect(model.respond_to?(:dummy_user_bogus_method)).to be_false
+      end
+    end
+  end
+
   it "delegates to attr_accessors of associated objects" do
     model.dummy_user_full_name = 'Mo Lawson'
     expect(model.dummy_user.full_name).to eq('Mo Lawson')
@@ -180,5 +238,9 @@ describe Forminate do
   it "inherits the validations of its associated objects" do
     model.valid?
     expect(model.errors.full_messages).to eq(["Dummy user email can't be blank", "Total is not a number"])
+  end
+
+  it "is not persisted" do
+    expect(model.persisted?).to be_false
   end
 end
