@@ -71,7 +71,7 @@ module Forminate
     # validation hash.
     def association_validators
       associations.reduce({}) do |assoc_validators, (name, object)|
-        if should_validate_assoc?(name) && object.respond_to?(:_validators)
+        if validate_assoc?(name) && object.respond_to?(:_validators)
           object._validators.each do |attr, validators|
             new_validators = validators.reduce([]) do |new_validators, validator|
               new_validator = validator.dup
