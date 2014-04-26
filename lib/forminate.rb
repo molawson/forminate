@@ -1,7 +1,9 @@
-require "forminate/version"
+require 'forminate/version'
 
 require 'active_support/concern'
 require 'active_attr'
+
+require 'forminate/association'
 
 module Forminate
   extend ActiveSupport::Concern
@@ -21,8 +23,7 @@ module Forminate
 
   module ClassMethods
     def attributes_for(name, options = {})
-      define_attributes name
-      define_association name, options
+      define_association(Association.new(name, options))
     end
 
     def association_names
@@ -35,41 +36,32 @@ module Forminate
 
     private
 
-    def define_attributes(association_name)
-      attributes = association_name.to_s.classify.constantize.attribute_names
-      attributes.each { |attr| define_attribute(attr, association_name) }
+    def define_association(assoc)
+      assoc.attributes.each { |attr| define_attribute(attr, assoc.name) }
+      association_names << assoc.name
+      association_validations[assoc.name] = assoc.validation_condition
+      send(:attr_accessor, assoc.name)
     end
 
-    def define_attribute(attr, assoc)
-      ActiveAttr::AttributeDefinition.new("#{assoc}_#{attr}").tap do |attribute_definition|
+    def define_attribute(attr, assoc_name)
+      ActiveAttr::AttributeDefinition.new("#{assoc_name}_#{attr}").tap do |attribute_definition|
         attribute_name = attribute_definition.name.to_s
         attributes[attribute_name] = attribute_definition
       end
-      define_attribute_reader(attr, assoc)
-      define_attribute_writer(attr, assoc)
+      define_attribute_reader(attr, assoc_name)
+      define_attribute_writer(attr, assoc_name)
     end
 
-    def define_attribute_reader(attr, assoc)
-      define_method("#{assoc}_#{attr}") do
-        send(assoc.to_sym).send(attr.to_sym)
+    def define_attribute_reader(attr, assoc_name)
+      define_method("#{assoc_name}_#{attr}") do
+        send(assoc_name.to_sym).send(attr.to_sym)
       end
     end
 
-    def define_attribute_writer(attr, assoc)
-      define_method("#{assoc}_#{attr}=") do |value|
-        send(assoc.to_sym).send("#{attr}=".to_sym, value)
+    def define_attribute_writer(attr, assoc_name)
+      define_method("#{assoc_name}_#{attr}=") do |value|
+        send(assoc_name.to_sym).send("#{attr}=".to_sym, value)
       end
-    end
-
-    def define_association(name, options = {})
-      association_names << name
-      should_validate = if options.has_key?(:validate)
-                          options[:validate]
-                        else
-                          true
-                        end
-      association_validations[name] = should_validate
-      send(:attr_accessor, name)
     end
   end
 
