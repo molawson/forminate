@@ -1,6 +1,5 @@
 module Forminate
   class AssociationDefinition
-
     attr_reader :name
 
     def initialize(name, options = {})

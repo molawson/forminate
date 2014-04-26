@@ -173,12 +173,12 @@ module Forminate
       self.class.send(:define_method, method_name) { filter }
       method_name
     else
-      raise NotImplementedError, "The attributes_for :validate option can only take a symbol, true, or false"
+      fail NotImplementedError, 'The attributes_for :validate option can only take a symbol, true, or false'
     end
   end
 
   def association_for_method(name)
-    assoc_name = association_names.find { |an| name.match /^#{an}_/ }
+    assoc_name = association_names.find { |an| name.match(/^#{an}_/) }
     if assoc_name
       assoc_method_name = name.to_s.sub("#{assoc_name}_", '').to_sym
       assoc = send(assoc_name)

@@ -11,13 +11,13 @@ describe Forminate do
       attribute :tax
 
       attributes_for :dummy_user
-      attributes_for :dummy_book, :validate => false
-      attributes_for :dummy_credit_card, :validate => :require_credit_card?
+      attributes_for :dummy_book, validate: false
+      attributes_for :dummy_credit_card, validate: :require_credit_card?
 
       validates_numericality_of :total
 
       def self.name
-        "Cart"
+        'Cart'
       end
 
       def calculate_total
@@ -30,27 +30,27 @@ describe Forminate do
     end
   end
 
-  describe ".attributes_for" do
-    it "adds a reader method for each attribute of the associated model" do
+  describe '.attributes_for' do
+    it 'adds a reader method for each attribute of the associated model' do
       expect(model.respond_to?(:dummy_user_first_name)).to be_true
     end
 
-    it "adds reader and writer methods for each attribute of the associated model" do
+    it 'adds reader and writer methods for each attribute of the associated model' do
       model.dummy_user_first_name = 'Mo'
       expect(model.dummy_user_first_name).to eq('Mo')
     end
 
-    it "adds reader methods for each associated model" do
+    it 'adds reader methods for each associated model' do
       expect(model.dummy_user).to be_an_instance_of(DummyUser)
     end
 
-    it "adds the association to the list of association names" do
+    it 'adds the association to the list of association names' do
       expect(model_class.association_names).to include(:dummy_user)
     end
 
-    describe ":validate option" do
-      context "true or false" do
-        it "validates associated object based value given" do
+    describe ':validate option' do
+      context 'true or false' do
+        it 'validates associated object based value given' do
           model.calculate_total
           expect(model.valid?).to be_false
           model.dummy_user_email = 'bob@example.com'
@@ -58,8 +58,8 @@ describe Forminate do
         end
       end
 
-      context "method name (as a symbol) that evaluates to true or false" do
-        it "validates associated objects based on result of method call" do
+      context 'method name (as a symbol) that evaluates to true or false' do
+        it 'validates associated objects based on result of method call' do
           model.calculate_total
           model.dummy_user_email = 'bob@example.com'
           expect(model.valid?).to be_true
@@ -70,65 +70,72 @@ describe Forminate do
         end
       end
 
-      context "invalid value" do
+      context 'invalid value' do
         let(:bad_model_class) do
           Class.new do
             include Forminate
-            attributes_for :dummy_book, :validate => [:what, :are, :you, :thinking?]
+            attributes_for :dummy_book, validate: [:say, :what?]
           end
         end
 
-        it "raises an NotImplemented error" do
-          expect { bad_model_class.new.valid? }.to raise_error(NotImplementedError)
+        it 'raises an NotImplemented error' do
+          expect { bad_model_class.new.valid? }
+            .to raise_error(NotImplementedError)
         end
       end
     end
   end
 
-  describe ".attribute_names" do
-    it "includes the names of its own attributes and the attributes of associated models" do
-      expected_attributes = [
-        "total",
-        "tax",
-        "dummy_user_id",
-        "dummy_user_first_name",
-        "dummy_user_last_name",
-        "dummy_user_email",
-        "dummy_book_title",
-        "dummy_book_price",
-        "dummy_credit_card_number",
-        "dummy_credit_card_expiration",
-        "dummy_credit_card_cvv",
-      ]
+  describe '.attribute_names' do
+    it 'includes the names of its own attributes and the attributes of associated models' do
+      expected_attributes = %w(
+        total
+        tax
+        dummy_user_id
+        dummy_user_first_name
+        dummy_user_last_name
+        dummy_user_email
+        dummy_book_title
+        dummy_book_price
+        dummy_credit_card_number
+        dummy_credit_card_expiration
+        dummy_credit_card_cvv
+      )
       expect(model_class.attribute_names).to eq(expected_attributes)
     end
   end
 
-  describe ".association_names" do
-    it "includes the names of associated models" do
-      expect(model_class.association_names).to eq([:dummy_user, :dummy_book, :dummy_credit_card])
+  describe '.association_names' do
+    it 'includes the names of associated models' do
+      expect(model_class.association_names)
+        .to eq([:dummy_user, :dummy_book, :dummy_credit_card])
     end
   end
 
-  describe ".association_validations" do
-    it "includes the names and conditions of association validations" do
-      expect(model_class.association_validations).to eq({ :dummy_user => true, :dummy_book => false, :dummy_credit_card => :require_credit_card? })
+  describe '.association_validations' do
+    it 'includes the names and conditions of association validations' do
+      expect(model_class.association_validations)
+        .to eq(
+          dummy_user: true,
+          dummy_book: false,
+          dummy_credit_card: :require_credit_card?
+        )
     end
   end
 
-  describe "#initialize" do
-    it "builds associated objects and creates reader methods" do
+  describe '#initialize' do
+    it 'builds associated objects and creates reader methods' do
       expect(model.dummy_user).to be_an_instance_of(DummyUser)
     end
 
-    it "creates writer methods for associated objects" do
+    it 'creates writer methods for associated objects' do
       new_dummy_user = DummyUser.new(first_name: 'Mo')
       expect(model.dummy_user).to_not be(new_dummy_user)
       model.dummy_user = new_dummy_user
       expect(model.dummy_user).to be(new_dummy_user)
     end
 
-    it "sets association attributes based on an options hash" do
+    it 'sets association attributes based on an options hash' do
       new_model = model_class.new(
         dummy_user_first_name: 'Mo',
         dummy_user_last_name: 'Lawson',
@@ -138,8 +145,8 @@ describe Forminate do
       expect(new_model.dummy_user_last_name).to eq('Lawson')
     end
 
-    context "primary key of an associated AR model is present" do
-      it "populates the matching model with values from the database" do
+    context 'primary key of an associated AR model is present' do
+      it 'populates the matching model with values from the database' do
         user = DummyUser.create(
           first_name: 'Mo',
           last_name: 'Lawson',
@@ -150,27 +157,27 @@ describe Forminate do
       end
     end
 
-    it "sets attributes based on an options hash" do
+    it 'sets attributes based on an options hash' do
       new_model = model_class.new(total: 21.49)
       expect(new_model.total).to eq(21.49)
     end
   end
 
-  describe "#association_names" do
-    it "delegates to self.association_names" do
+  describe '#association_names' do
+    it 'delegates to self.association_names' do
       expect(model.association_names).to eq(model_class.association_names)
     end
   end
 
-  describe "#associations" do
-    it "returns a hash of association names and associated objects" do
+  describe '#associations' do
+    it 'returns a hash of association names and associated objects' do
       expect(model.associations[:dummy_user]).to be_an_instance_of(DummyUser)
     end
   end
 
-  describe "#save" do
-    context "object is valid" do
-      it "saves associations and returns self" do
+  describe '#save' do
+    context 'object is valid' do
+      it 'saves associations and returns self' do
         model.dummy_user_email = 'bob@example.com'
         model.calculate_total
         DummyUser.any_instance.should_receive(:save)
@@ -178,69 +185,70 @@ describe Forminate do
       end
     end
 
-    context "object is not valid" do
-      it "does not save associations and returns false" do
+    context 'object is not valid' do
+      it 'does not save associations and returns false' do
         DummyUser.any_instance.should_not_receive(:save)
         expect(model.save).to be_false
       end
     end
   end
 
-  context "setting an attribute using the attribute name" do
-    it "reflects the change on the associated object" do
+  context 'setting an attribute using the attribute name' do
+    it 'reflects the change on the associated object' do
       model.dummy_user_first_name = 'Mo'
       expect(model.dummy_user.first_name).to eq('Mo')
     end
   end
 
   context "setting an attribute using the association's attribute" do
-    it "reflects the change on the attribute name" do
+    it 'reflects the change on the attribute name' do
       model.dummy_user.last_name = 'Lawson'
       expect(model.dummy_user_last_name).to eq('Lawson')
     end
   end
 
-  describe "#method_missing" do
-    context "associated object responds to method" do
-      it "returns the value from the association" do
+  describe '#method_missing' do
+    context 'associated object responds to method' do
+      it 'returns the value from the association' do
         new_model = model_class.new(dummy_user_first_name: 'Mo')
         expect(new_model.dummy_user_first_name).to eq('Mo')
       end
     end
 
-    context "associated object does not respond to method" do
-      it "raises a NoMethodError" do
+    context 'associated object does not respond to method' do
+      it 'raises a NoMethodError' do
         expect { model.dummy_user_bogus_method }.to raise_error(NoMethodError)
       end
     end
   end
 
-  describe "#respond_to_missing?" do
-    context "associated object responds to method" do
-      it "returns true" do
+  describe '#respond_to_missing?' do
+    context 'associated object responds to method' do
+      it 'returns true' do
         expect(model.respond_to?(:dummy_user_first_name)).to be_true
       end
     end
 
-    context "associated object does not respond to method" do
-      it "returns false" do
+    context 'associated object does not respond to method' do
+      it 'returns false' do
         expect(model.respond_to?(:dummy_user_bogus_method)).to be_false
       end
     end
   end
 
-  it "delegates to attr_accessors of associated objects" do
+  it 'delegates to attr_accessors of associated objects' do
     model.dummy_user_full_name = 'Mo Lawson'
     expect(model.dummy_user.full_name).to eq('Mo Lawson')
     expect(model.dummy_user_full_name).to eq('Mo Lawson')
   end
 
-  it "inherits the validations of its associated objects" do
+  it 'inherits the validations of its associated objects' do
     model.valid?
-    expect(model.errors.full_messages).to eq(["Dummy user email can't be blank", "Total is not a number"])
+    expect(model.errors.full_messages)
+      .to eq(["Dummy user email can't be blank", 'Total is not a number'])
   end
 
-  it "is not persisted" do
+  it 'is not persisted' do
     expect(model.persisted?).to be_false
   end
 end
