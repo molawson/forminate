@@ -210,8 +210,8 @@ describe Forminate do
   describe '#method_missing' do
     context 'associated object responds to method' do
       it 'returns the value from the association' do
-        new_model = model_class.new(dummy_user_first_name: 'Mo')
-        expect(new_model.dummy_user_first_name).to eq('Mo')
+        new_model = model_class.new(dummy_user_temporary_note: 'Only stopping by')
+        expect(new_model.dummy_user_temporary_note).to eq('Only stopping by')
       end
     end
 
@@ -225,7 +225,7 @@ describe Forminate do
   describe '#respond_to_missing?' do
     context 'associated object responds to method' do
       it 'returns true' do
-        expect(model.respond_to?(:dummy_user_first_name)).to be_true
+        expect(model.respond_to?(:dummy_user_temporary_note)).to be_true
       end
     end
 
@@ -237,9 +237,9 @@ describe Forminate do
   end
 
   it 'delegates to attr_accessors of associated objects' do
-    model.dummy_user_full_name = 'Mo Lawson'
-    expect(model.dummy_user.full_name).to eq('Mo Lawson')
-    expect(model.dummy_user_full_name).to eq('Mo Lawson')
+    model.dummy_user_temporary_note = 'Only stopping by'
+    expect(model.dummy_user.temporary_note).to eq('Only stopping by')
+    expect(model.dummy_user_temporary_note).to eq('Only stopping by')
   end
 
   it 'inherits the validations of its associated objects' do
