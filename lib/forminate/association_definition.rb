@@ -1,5 +1,5 @@
 module Forminate
-  class Association
+  class AssociationDefinition
 
     attr_reader :name
 

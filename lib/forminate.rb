@@ -3,7 +3,7 @@ require 'forminate/version'
 require 'active_support/concern'
 require 'active_attr'
 
-require 'forminate/association'
+require 'forminate/association_definition'
 
 module Forminate
   extend ActiveSupport::Concern
@@ -23,7 +23,7 @@ module Forminate
 
   module ClassMethods
     def attributes_for(name, options = {})
-      define_association(Association.new(name, options))
+      define_association(AssociationDefinition.new(name, options))
     end
 
     def association_names

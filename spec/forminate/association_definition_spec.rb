@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Forminate::Association do
+describe Forminate::AssociationDefinition do
   let(:options) { {} }
 
-  subject { Forminate::Association.new(DummyUser, options) }
+  subject { Forminate::AssociationDefinition.new(DummyUser, options) }
 
   describe '#attributes' do
     it 'returns a list of attributes from the appropriate class' do
