@@ -247,8 +247,4 @@ describe Forminate do
     expect(model.errors.full_messages)
       .to eq(["Dummy user email can't be blank", 'Total is not a number'])
   end
-
-  it 'is not persisted' do
-    expect(model.persisted?).to be_false
-  end
 end

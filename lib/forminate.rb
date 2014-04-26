@@ -71,10 +71,6 @@ module Forminate
     super
   end
 
-  def persisted?
-    false
-  end
-
   def association_names
     self.class.association_names
   end
