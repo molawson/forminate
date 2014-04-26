@@ -12,10 +12,10 @@ module Forminate
   included do
     validate do
       associations.each do |name, object|
-        if should_validate_assoc?(name) && object.respond_to?(:invalid?) && object.invalid?
-          object.errors.each do |field, messages|
-            errors["#{name}_#{field}".to_sym] = messages
-          end
+        next unless validate_assoc?(name) && object.respond_to?(:invalid?) && object.invalid?
+
+        object.errors.each do |field, messages|
+          errors["#{name}_#{field}".to_sym] = messages
         end
       end
     end
@@ -153,23 +153,20 @@ module Forminate
   end
 
   def persist_associations
-    associations.each do |name, object|
-      object.save if object.respond_to? :save
-    end
+    associations.each { |_, object| object.save if object.respond_to?(:save) }
   end
 
-  def should_validate_assoc?(name)
-    method_name = assoc_validation_filter_method(name)
-    send(method_name)
+  def validate_assoc?(name)
+    send(assoc_validation_filter_method(name))
   end
 
   def assoc_validation_filter_method(name)
     filter = self.class.association_validations.fetch(name, true)
-    method_name = "should_validate_#{name}?".to_sym
     case filter
     when Symbol
       filter
     when TrueClass, FalseClass
+      method_name = "validate_#{name}?".to_sym
       self.class.send(:define_method, method_name) { filter }
       method_name
     else
@@ -179,10 +176,11 @@ module Forminate
 
   def association_for_method(name)
     assoc_name = association_names.find { |an| name.match(/^#{an}_/) }
-    if assoc_name
-      assoc_method_name = name.to_s.sub("#{assoc_name}_", '').to_sym
-      assoc = send(assoc_name)
-      return assoc, assoc_method_name
-    end
+
+    return unless assoc_name
+
+    assoc_method_name = name.to_s.sub("#{assoc_name}_", '').to_sym
+    assoc = send(assoc_name)
+    return assoc, assoc_method_name
   end
 end
