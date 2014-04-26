@@ -7,7 +7,7 @@ describe Forminate::AssociationDefinition do
 
   describe '#attributes' do
     it 'returns a list of attributes from the appropriate class' do
-      expect(subject.attributes).to eq(%w(first_name last_name email))
+      expect(subject.attributes).to eq(%w(id first_name last_name email))
     end
   end
 
