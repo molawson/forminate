@@ -5,3 +5,7 @@ rvm:
   - 2.1.0
   - jruby
   - rbx
+addons:
+  code_climate:
+    repo_token:
+      secure: AeJjEZpQ3k0FFhsjvSce9k8VBOjed5Qe0wd6PlRhO8Uuv73VZQTFScvHSV/p0BUNUYMAvvPFHD8ha2yaC0cbqKzdZVbgp3OLmv553CymlmEGdOZxhg5X7thnheAMF/SMxoqpB9X+MHDbQxnf6hYoa6ntWSpzh4bb7ruyR03sGYM=

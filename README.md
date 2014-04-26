@@ -2,6 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/molawson/forminate.svg)](https://travis-ci.org/molawson/forminate)
 [![Code Climate](https://img.shields.io/codeclimate/github/molawson/forminate.svg)](https://codeclimate.com/github/molawson/forminate)
+[![Code Climate Coverage](https://img.shields.io/codeclimate/coverage/github/molawson/forminate.svg)](https://codeclimate.com/github/molawson/forminate)
 
 Doing CRUD operations in Rails is pretty awesome. Just remember the first time you generated a Rails scaffold and almost immediately started creating and editing records in the database from a web form. I'd bet that hooked a lot of people. It certainly caught my attention.
 
