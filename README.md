@@ -1,7 +1,8 @@
 # Forminate
 
-[![Build Status](https://travis-ci.org/molawson/forminate.png?branch=master)](https://travis-ci.org/molawson/forminate)
-[![Code Climate](https://codeclimate.com/github/molawson/forminate.png)](https://codeclimate.com/github/molawson/forminate)
+
+[![Build Status](https://img.shields.io/travis/molawson/forminate.svg)](https://travis-ci.org/molawson/forminate)
+[![Code Climate](https://img.shields.io/codeclimate/github/molawson/forminate.svg)](https://codeclimate.com/github/molawson/forminate)
 
 TODO: Write a gem description
 
