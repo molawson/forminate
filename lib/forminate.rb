@@ -79,11 +79,12 @@ module Forminate
     Hash[association_names.map { |name| [name, send(name)] }]
   end
 
-  def save
+  def save(opts = {})
     return false unless valid?
+    use_transaction = opts.fetch(:transaction) { true }
 
     before_save
-    if defined? ActiveRecord
+    if use_transaction && defined?(ActiveRecord)
       ActiveRecord::Base.transaction { persist_associations }
     else
       persist_associations

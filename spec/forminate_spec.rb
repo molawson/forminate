@@ -177,11 +177,32 @@ describe Forminate do
 
   describe '#save' do
     context 'object is valid' do
-      it 'saves associations and returns self' do
+      before do
         model.dummy_user_email = 'bob@example.com'
         model.calculate_total
+      end
+
+      it 'saves associations and returns self' do
         DummyUser.any_instance.should_receive(:save)
         expect(model.save).to eq(model)
+      end
+
+      context 'with transaction: true' do
+        before { 'ActiveRecord'.constantize }
+
+        it 'wraps persist in a transaction' do
+          ActiveRecord::Base.should_receive(:transaction).once
+          model.save
+        end
+      end
+
+      context 'with transaction: false' do
+        before { model.stub(:persist_associations) }
+
+        it "doesn't wrap persist in a transaction" do
+          ActiveRecord::Base.should_not_receive(:transaction)
+          model.save(transaction: false)
+        end
       end
     end
 
