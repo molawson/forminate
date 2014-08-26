@@ -14,7 +14,7 @@ describe Forminate::AssociationDefinition do
   describe '#validation_condition' do
     context 'options hash does not contain :validate key' do
       it 'returns true' do
-        expect(subject.validation_condition).to be_true
+        expect(subject.validation_condition).to be true
       end
     end
 
