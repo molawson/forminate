@@ -187,21 +187,23 @@ describe Forminate do
         expect(model.save).to eq(model)
       end
 
-      context 'with transaction: true' do
+      context 'with a transaction flag' do
         before { 'ActiveRecord'.constantize }
 
-        it 'wraps persist in a transaction' do
-          ActiveRecord::Base.should_receive(:transaction).once
-          model.save
+        context 'transaction: true' do
+          it 'wraps persist in a transaction' do
+            ActiveRecord::Base.should_receive(:transaction).once
+            model.save(transaction: true)
+          end
         end
-      end
 
-      context 'with transaction: false' do
-        before { model.stub(:persist_associations) }
+        context 'transaction: false' do
+          before { model.stub(:persist_associations) }
 
-        it "doesn't wrap persist in a transaction" do
-          ActiveRecord::Base.should_not_receive(:transaction)
-          model.save(transaction: false)
+          it "doesn't wrap persist in a transaction" do
+            ActiveRecord::Base.should_not_receive(:transaction)
+            model.save(transaction: false)
+          end
         end
       end
     end
