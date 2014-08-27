@@ -175,44 +175,55 @@ describe Forminate do
     end
   end
 
-  describe '#save' do
+  shared_examples 'a save method' do
     context 'object is valid' do
       before do
         model.dummy_user_email = 'bob@example.com'
         model.calculate_total
       end
 
-      it 'saves associations and returns self' do
+      it 'persists associations and returns self' do
         DummyUser.any_instance.should_receive(:save)
-        expect(model.save).to eq(model)
-      end
-
-      context 'with a transaction flag' do
-        before { 'ActiveRecord'.constantize }
-
-        context 'transaction: true' do
-          it 'wraps persist in a transaction' do
-            ActiveRecord::Base.should_receive(:transaction).once
-            model.save(transaction: true)
-          end
-        end
-
-        context 'transaction: false' do
-          before { model.stub(:persist_associations) }
-
-          it "doesn't wrap persist in a transaction" do
-            ActiveRecord::Base.should_not_receive(:transaction)
-            model.save(transaction: false)
-          end
-        end
+        expect(method).to eq(model)
       end
     end
 
-    context 'object is not valid' do
-      it 'does not save associations and returns false' do
+    context 'object is invalid' do
+      it 'does not persist associations and returns false' do
         DummyUser.any_instance.should_not_receive(:save)
-        expect(model.save).to be false
+        expect(method).to be false
       end
+    end
+  end
+
+  describe '#save!' do
+    let(:method) { model.save! }
+    it_behaves_like 'a save method'
+  end
+
+  describe '#save' do
+    let(:method) { model.save }
+
+    context 'with ActiveRecord defined' do
+      before { model.stub(:use_transaction?).and_return(true) }
+
+      it 'wraps persistence in a transaction' do
+        ActiveRecord::Base.should_receive(:transaction).once
+        model.save
+      end
+
+      it_behaves_like 'a save method'
+    end
+
+    context 'without ActiveRecord defined' do
+      before { model.stub(:use_transaction?).and_return(false) }
+
+      it 'does not wrap persistence in a transaction' do
+        ActiveRecord::Base.should_not_receive(:transaction)
+        model.save
+      end
+
+      it_behaves_like 'a save method'
     end
   end
 
