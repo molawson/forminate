@@ -32,7 +32,7 @@ describe Forminate do
 
   describe '.attributes_for' do
     it 'adds a reader method for each attribute of the associated model' do
-      expect(model.respond_to?(:dummy_user_first_name)).to be_true
+      expect(model.respond_to?(:dummy_user_first_name)).to be true
     end
 
     it 'adds reader and writer methods for each attribute of the associated model' do
@@ -52,9 +52,9 @@ describe Forminate do
       context 'true or false' do
         it 'validates associated object based value given' do
           model.calculate_total
-          expect(model.valid?).to be_false
+          expect(model.valid?).to be false
           model.dummy_user_email = 'bob@example.com'
-          expect(model.valid?).to be_true
+          expect(model.valid?).to be true
         end
       end
 
@@ -62,11 +62,11 @@ describe Forminate do
         it 'validates associated objects based on result of method call' do
           model.calculate_total
           model.dummy_user_email = 'bob@example.com'
-          expect(model.valid?).to be_true
+          expect(model.valid?).to be true
           model.dummy_book_price = 12.95
-          expect(model.valid?).to be_false
+          expect(model.valid?).to be false
           model.dummy_credit_card_number = 4242424242424242
-          expect(model.valid?).to be_true
+          expect(model.valid?).to be true
         end
       end
 
@@ -175,21 +175,55 @@ describe Forminate do
     end
   end
 
-  describe '#save' do
+  shared_examples 'a save method' do
     context 'object is valid' do
-      it 'saves associations and returns self' do
+      before do
         model.dummy_user_email = 'bob@example.com'
         model.calculate_total
+      end
+
+      it 'persists associations and returns self' do
         DummyUser.any_instance.should_receive(:save)
-        expect(model.save).to eq(model)
+        expect(method).to eq(model)
       end
     end
 
-    context 'object is not valid' do
-      it 'does not save associations and returns false' do
+    context 'object is invalid' do
+      it 'does not persist associations and returns false' do
         DummyUser.any_instance.should_not_receive(:save)
-        expect(model.save).to be_false
+        expect(method).to be false
       end
+    end
+  end
+
+  describe '#save!' do
+    let(:method) { model.save! }
+    it_behaves_like 'a save method'
+  end
+
+  describe '#save' do
+    let(:method) { model.save }
+
+    context 'with ActiveRecord defined' do
+      before { model.stub(:use_transaction?).and_return(true) }
+
+      it 'wraps persistence in a transaction' do
+        ActiveRecord::Base.should_receive(:transaction).once
+        model.save
+      end
+
+      it_behaves_like 'a save method'
+    end
+
+    context 'without ActiveRecord defined' do
+      before { model.stub(:use_transaction?).and_return(false) }
+
+      it 'does not wrap persistence in a transaction' do
+        ActiveRecord::Base.should_not_receive(:transaction)
+        model.save
+      end
+
+      it_behaves_like 'a save method'
     end
   end
 
@@ -225,13 +259,13 @@ describe Forminate do
   describe '#respond_to_missing?' do
     context 'associated object responds to method' do
       it 'returns true' do
-        expect(model.respond_to?(:dummy_user_temporary_note)).to be_true
+        expect(model.respond_to?(:dummy_user_temporary_note)).to be true
       end
     end
 
     context 'associated object does not respond to method' do
       it 'returns false' do
-        expect(model.respond_to?(:dummy_user_bogus_method)).to be_false
+        expect(model.respond_to?(:dummy_user_bogus_method)).to be false
       end
     end
   end
