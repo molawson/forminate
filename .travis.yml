@@ -5,6 +5,7 @@ rvm:
   - 2.1.0
   - jruby
   - rbx
+sudo: false
 addons:
   code_climate:
     repo_token:
